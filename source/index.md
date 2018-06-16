@@ -3,12 +3,9 @@ title: API Reference
 
 language_tabs:
   - shell
-  - ruby
-  - python
 
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='http://github.com/tripit/slate'>Documentation Powered by Slate</a>
+  - <a href='https://www.traitly.com/register/'>Sign Up for an account and API token</a>
 
 includes:
   - errors
@@ -18,151 +15,252 @@ search: true
 
 # Introduction
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+The Traitly API is a RESTful Web service. You can use the API to access Traitly endpoints, which allow you to create, retrieve and update customer data stored on the [Traitly Platform](https://traitly.com).
 
-We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
-
-This example API documentation page was created with [Slate](http://github.com/tripit/slate). Feel free to edit it and use it as a base for your own API's documentation.
+We offer you the ability to make CURL requests, which are language-agnostic. We will offer client bindings for popular languages in the future.
 
 # Authentication
 
-> To authorize, use this code:
+> Authentication information must be passed with all API requests. A bearer token is passed as part of the request header. You must be registered and logged in to view your API credentials. You will find your token at our API credentials portal.
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-```
 
 ```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
+# Don't forget to pass the application/json
+# in the Content-Type header
+curl https://api.traitly.com/api/v1/<end-point>"
+  -H "Authorization: Token <insert-token-here>"
+  -H "Content-Type: application/json"
 ```
 
-> Make sure to replace `meowmeowmeow` with your API key.
+> Make sure to replace `insert-token-here` with your API key.
 
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
+The Traitly API uses account-level API keys to allow access to the API. You can access your Traitly API key following account creation [developer portal](https://www.traitly.com/apps/data-sources/get_traitly/).
 
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
+Traitly expects for the API key to be included in all API requests to the server in a header that looks like the following:
 
-`Authorization: meowmeowmeow`
+`Authorization: Token insert-token-here`
 
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
+# Events
 
-# Kittens
-
-## Get All Kittens
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
+## Create an Event
 
 ```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
+curl "https://api.traitly.com/api/v1/event"
+    --request POST
+    --data '{"customer_id": "15", "name": "Customer C",
+            "monthly_payment_amount": 99,
+            "location": "New York", "plan": "Atom",
+            "email": "support@company.com"
+            }'
+    -H "Authorization: Token <insert-token-here>"
 ```
+
 
 > The above command returns JSON structured like this:
 
 ```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Isis",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
+{
+    "data": [
+        {
+            "customer_id": "1",
+            "name": "Logged in",
+            "created_at": "1493933699",
+            "success": 1
+        },
+        {
+            "customer_id": "1",
+            "name": "Logged in",
+            "created_at": "1494020099",
+            "success": 1
+        }
+    ],
+    "metadata": {},
+    "created": "1500019594",
+    "object": "event"
+}
 ```
 
-This endpoint retrieves all kittens.
+This endpoint is used to create a tracked event inside Traitly.
 
-### HTTP Request
+### HTTP POST Request
 
-`GET http://example.com/api/kittens`
+`POST https://api.traitly.com/api/event`
 
-### Query Parameters
+### POST Parameters
 
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
+Parameter | Default | Required | Description
+--------- | ------- | -------- | -----------
+customer_id | None | Yes| Your identifier for the customer.
+name | None | Yes | Name of the event being created, e.g., "added user".
+created_at | Current UNIX timestamp | No | Time at which the event occurred. Measured in seconds since the Unix epoch. Defaults to the current Unix timestamp.
 
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
 
-## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
+## List Events
 
 ```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
+curl "https://api.traitly.com/api/v1/event"
+    --request GET
+    -H "Authorization: Token <insert-token-here>"
+    -H "Content-Type: application/json"
 ```
 
 > The above command returns JSON structured like this:
 
 ```json
 {
-  "id": 2,
-  "name": "Isis",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+    "data": [
+        {
+            "customer_id": "1",
+            "name": "Logged in",
+            "created_at": "1493933699",
+            "success": 1
+        },{
+            "customer_id": "1",
+            "name": "Logged in",
+            "created_at": "1494020099",
+            "success": 1
+        }
+    ],
+    "metadata": {},
+    "retrieved": "1500019594",
+    "object": "event"
 }
 ```
 
-This endpoint retrieves a specific kitten.
+This endpoint retrieves a list of events.
 
-<aside class="warning">If you're not using an administrator API key, note that some kittens will return 403 Forbidden if they are hidden for admins only.</aside>
-
+<aside class="success">
+ Remember — pass the authentication header as part of your request, as well as the correct content type: application/json
+</aside>
 ### HTTP Request
 
-`GET http://example.com/kittens/<ID>`
+`GET https://api.traitly.com/api/v1/event`
 
 ### URL Parameters
 
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
+Parameter | Required | Description
+--------- | ------- | -------- |
+customer_id | Yes | Your identifier for the customer.
+name | Yes | Name of the event being retrieved, e.g., "added user".
+
+
+# Customers
+
+## Create a Customer
+
+```shell
+curl "https://api.traitly.com/api/v1/customer"
+    --request POST
+    --data '{"customer_id": "123", "name": "John Smith",
+            "monthly_payment_amount": 199,
+            "location": "San Francisco", "plan": "Starter",
+            "email": "john.smith@example.com"
+            }'
+    -H "Authorization: Token <insert-token-here>"
+```
+
+> The above command returns JSON structured like this:
+
+```json
+{
+    "data": [
+        {
+            "customer_id": "123",
+            "name": "John Smith",
+            "created_at": "1493933699",
+            "monthly_payment_amount": 199,
+            "location": "San Francisco",
+            "email": "john.smith@example.com",
+            "phone_number": "0123456789",
+            "organisation_id": null,
+            "plan": "Starter",
+            "custom_attributes": {"role": "manager", "account_type": "admin"}
+        },
+    ],
+    "metadata": {},
+    "created": "1500019594",
+    "object": "customer"
+}
+```
+
+This endpoint is used to create a tracked event inside Traitly.
+
+### HTTP POST Request
+
+`POST https://api.traitly.com/api/v1/customer`
+
+### POST Parameters
+
+
+Parameter | Default | Required | Description
+--------- | ------- | -------- | -----------
+customer_id | None | Yes| Your identifier for the customer.
+name | None | Yes | Name of the customer being created, e.g., "John Smith".
+email | None | Yes | Email address of the customer being created, e.g., "john.smith@example.com".
+plan | None | Yes | This is the name of the plan the user is assigned to, e.g, "Starter"
+created_at | Current UNIX timestamp | No | Time at which the customer signed up. Measured in seconds since the UNIX epoch. Defaults to the current UNIX timestamp.
+custom_attributes | object | No | A hash of key-value pairs containing any other data about the customer you want Traitly to store.
+
+## List Customers
+
+```shell
+curl "https://api.traitly.com/api/v1/customer"
+    --request GET
+    -H "Authorization: Token <insert-token-here>"
+    -H "Content-Type: application/json"
+```
+
+> The above command returns JSON structured like this:
+
+```json
+{
+    "data": [
+        {
+            "customer_id": "123",
+            "name": "John Smith",
+            "created_at": "1493933699",
+            "monthly_payment_amount": 199,
+            "location": "San Francisco",
+            "email": "john.smith@example.com",
+            "phone_number": "0123456789",
+            "organisation_id": null,
+            "plan": "Starter",
+            "custom_attributes": {"role": "manager", "account_type": "admin"}
+        },
+        {
+            "customer_id": "456",
+            "name": "Alice Smith",
+            "created_at": "1533933699",
+            "monthly_payment_amount": 0,
+            "location": "Berlin",
+            "email": "alice.smith@example.com",
+            "phone_number": "0123456789",
+            "organisation_id": null,
+            "plan": "Freemium",
+            "custom_attributes": {"role": "cashier", "account_type": "sub-user"}
+        },
+    ],
+    "metadata": {},
+    "retrieved": "1500019594",
+    "object": "customer"
+}
+```
+
+This endpoint retrieves a list of customers.
+
+<aside class="success">
+ Remember — pass the authentication header as part of your request, as well as the correct content type: application/json
+</aside>
+
+### HTTP Request
+
+`GET https://api.traitly.com/api/v1/customer`
+
+### URL Parameters
+
+Parameter | Required | Description
+--------- | ------- | -------- |
+customer_id | No | Your identifier for the customer.
+name | No | Name of the customer being retrieved, e.g., "John Smith".
+plan | No | Name of the plan a customer is assigned to, e.g., "Starter".
 
