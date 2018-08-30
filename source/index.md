@@ -264,3 +264,146 @@ customer_id | No | Your identifier for the customer.
 name | No | Name of the customer being retrieved, e.g., "John Smith".
 plan | No | Name of the plan a customer is assigned to, e.g., "Starter".
 
+
+
+
+
+
+# Goal Predictions
+
+## Webhook: Recommended Next Actions
+
+> A JSON structure like this is sent to the prescribed endpoint:
+
+```json
+{
+"data": [{
+    "event_name": "Style Widget",
+    "goal_num_completed": 0,
+    "total_num_completed": 4,
+    "goal_days_left": 14,
+    "importance": 0.4,
+    "message_plaintext":"It's time to complete...",
+    "message_html":"<p>It's time to complete...</p>"
+}],
+"meta": {"customer_id": "123456", "goal_name": "30-day Conversion"},
+"timestamp":123456789,
+"object":"recommended-next-actions"
+}
+```
+
+This endpoint can be used to power third-party (e.g., in-house) targeting systems.
+
+### HTTP POST Request
+
+### POST data model
+
+Parameter | Type | Description
+--------- | ------- | -------- | -----------
+event_name | String | Name of the recommended event
+goal_num_completed | Integer | The number of times the Customer has completed the event during the goal window
+total_num_completed | Integer | The number of times the Customer has completed the event all-time
+goal_days_left | Integer | The maximum number of days for which the Customer will be assigned to the goal
+importance | Float | This represents the importance of the user to perform the event as their next optimal course of action. This is relative to other events in the data payload
+message_plaintext | String | Plaintext representation of the event message specified for the event
+message_html | String | HTML representation of the event message specified for the event
+
+### POST header values
+
+Key | Value
+--------- | -------
+User-Agent | traitly
+Accept | application/json
+Content-Type | application/json
+
+
+
+## Webhook: Goal Propensity Change
+
+> A JSON structure like this is sent to the prescribed endpoint:
+
+```json
+{
+"data": [{
+    "likelihood": 0.5
+}],
+"meta": {"customer_id": "123456", "goal_name": "30-day Conversion"},
+"timestamp":123456789,
+"object":"goal-propensity-change"
+}
+```
+
+This endpoint can be used to power third-party (e.g., in-house) targeting systems.
+
+### HTTP POST Request
+
+### POST data model
+
+Parameter | Type | Description
+--------- | ------- | -------- | -----------
+likelihood | Float | This represents the propensity of a Customer to achieve a goal, e.g., likelihood to convert
+
+
+### POST meta model
+
+Parameter | Default | Required | Description
+--------- | ------- | -------- | -----------
+customer_id | String | Your identifier for the Customer.
+goal_name | String | Name of the goal the prediction relates to, e.g., "Conversion".
+
+
+
+### POST header values
+
+Key | Value
+--------- | -------
+User-Agent | traitly
+Accept | application/json
+Content-Type | application/json
+
+
+
+## Lookup: Recommended Next Actions
+
+```shell
+curl "https://api.traitly.com/api/v1/recommended-next-action"
+    --request GET
+    -H "Authorization: Token <insert-token-here>"
+    -H "Content-Type: application/json"
+```
+
+> The above command returns JSON structured like this:
+
+```json
+{
+"data": [{
+    "event_name": "Style Widget",
+    "goal_num_completed": 0,
+    "total_num_completed": 4,
+    "goal_days_left": 14,
+    "importance": 0.4,
+    "message_plaintext":"It's time to complete...",
+    "message_html":"<p>It's time to complete...</p>"
+}],
+"likelihood": 0.5,
+"meta": {"customer_id": "123456", "goal_name": "30-day Conversion"},
+"timestamp":123456789,
+"object":"recommended-next-actions"
+}
+```
+
+This endpoint retrieves recommended next actions and goal completion propensity for a Customer.
+
+<aside class="success">
+ Remember — pass the authentication header as part of your request, as well as the correct content type: application/json
+</aside>
+### HTTP Request
+
+`GET https://api.traitly.com/api/v1/recommended-next-actions`
+
+### URL Parameters
+
+Parameter | Required | Description
+--------- | ------- | -------- |
+customer_id | Yes | Your identifier for the Customer.
+goal_name | No | Name of the Goal the Customer is assigned to.
